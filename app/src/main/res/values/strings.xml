@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">DMBake</string>
+
+    <!-- settings menu stuff -->
+    <string name="settings_menu_title">App Settings</string>
+    <string name="theme_pref_key">Theme Choice</string>
+    <string name="theme_pref_title">Color Theme</string>
+
+    <string name="ingredients_title">Ingredients</string>
+    <string name="error_loading_items">Nothing to show :/</string>
+
+</resources>
