@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.example.dmbake.R;
 import com.example.dmbake.models.IngredientsParcelable;
@@ -18,6 +19,8 @@ public class RecipeStepViewActivity extends AppCompatActivity {
 
     @BindView(R.id.recipe_details_rv)
     RecyclerView recipeDetailsRv;
+
+    private static String TAG = RecipeStepViewActivity.class.getSimpleName();
 
     private RecipeParcelable recipe;
     private boolean isStep;
@@ -33,7 +36,9 @@ public class RecipeStepViewActivity extends AppCompatActivity {
             //get data from intent that started the activity
             recipe = getIntent().getExtras().getParcelable("recipe");
             isStep = getIntent().getBooleanExtra("isStep", false);
-            stepIndex = getIntent().getExtras().getInt("stepIndex", 0);
+            stepIndex = getIntent().getIntExtra("stepIndex", 0);
+            Log.v(TAG, "isStep: " + isStep);
+            Log.v(TAG, "stepIndex: " + stepIndex);
             //set screen title
             setTitle(recipe.getRecipeName());
             //load correct fragment view

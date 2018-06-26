@@ -129,12 +129,13 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
     @Override
     public void onListItemClick(Boolean isStep, Integer stepIndex) {
         if(mTwoPane) {
+            //if tab view is used, then calls the fragment directly
             if (isStep) {
                 Toast.makeText(this, "Step: " + stepIndex,
                         Toast.LENGTH_SHORT).show();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 //position - 1 b/c ingredients takes up position 0 within the list
-                Fragment fragment = StepViewFragment.newInstance(recipe, false, stepIndex);
+                Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex);
                 ft.replace(R.id.recipe_step_container2, fragment);
                 ft.commit();
             } else if (!isStep) {
@@ -146,20 +147,21 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
                 ft.commit();
             }
         } else if(!mTwoPane) {
+            //if not tablet view, then will start a new intent which will then decide which fragment to display
             if (isStep) {
                 Toast.makeText(this, "Step: " + (stepIndex),
                         Toast.LENGTH_SHORT).show();
-                Intent startRecipeStepViewAcitvity = new Intent(this, RecipeStepViewActivity.class);
-                startRecipeStepViewAcitvity.putExtra("recipe", recipe);
-                startRecipeStepViewAcitvity.putExtra("isStep", true);
-                startRecipeStepViewAcitvity.putExtra("stepIndex", stepIndex);
-                startActivity(startRecipeStepViewAcitvity);
+                Intent startRecipeStepViewAcitivity = new Intent(this, RecipeStepViewActivity.class);
+                startRecipeStepViewAcitivity.putExtra("recipe", recipe);
+                startRecipeStepViewAcitivity.putExtra("isStep", true);
+                startRecipeStepViewAcitivity.putExtra("stepIndex", stepIndex);
+                startActivity(startRecipeStepViewAcitivity);
             } else if (!isStep){
                 Toast.makeText(this, "Ingredients!",
                         Toast.LENGTH_SHORT).show();
-                Intent startRecipeStepViewAcitvity = new Intent(this, RecipeStepViewActivity.class);
-                startRecipeStepViewAcitvity.putExtra("recipe", recipe);
-                startActivity(startRecipeStepViewAcitvity);
+                Intent startRecipeStepViewAcitivity = new Intent(this, RecipeStepViewActivity.class);
+                startRecipeStepViewAcitivity.putExtra("recipe", recipe);
+                startActivity(startRecipeStepViewAcitivity);
             }
         }
     } //end onListItemClick

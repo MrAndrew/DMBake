@@ -9,4 +9,12 @@
     <string name="ingredients_title">Ingredients</string>
     <string name="error_loading_items">Nothing to show :/</string>
 
+    //strings for notification media player
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="restart">Restart</string>
+    <string name="notification_title">Recipe Step</string>
+    <string name="notification_text">DMBake</string>
+    <string name="notification_channel_id">DMBAKE_CHANNEL</string>
+
 </resources>
