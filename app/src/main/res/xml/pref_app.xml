@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <ListPreference
         android:key="@string/theme_pref_key"
         android:title="@string/theme_pref_title"
         android:entries="@array/theme_options"
         android:entryValues="@array/theme_options_values" />
+    <ListPreference
+        android:key="@string/widget_pref_key"
+        android:title="@string/widget_pref_title"
+        android:entries="@array/widget_options"
+        android:entryValues="@array/widget_options_values" />
+
 </PreferenceScreen>

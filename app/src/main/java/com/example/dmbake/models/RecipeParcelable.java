@@ -14,7 +14,7 @@ public class RecipeParcelable implements Parcelable {
     private ArrayList<StepsParcelable> steps = new ArrayList<StepsParcelable>();
     private Integer servings;
 
-    private RecipeParcelable(Parcel in) {
+    public RecipeParcelable(Parcel in) {
         this.recipeId = in.readInt();
         this.recipeName = in.readString();
         //readTypedList needed to nest lists of other parcelable objects within the parcelable object

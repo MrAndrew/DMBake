@@ -5,16 +5,18 @@
     <string name="settings_menu_title">App Settings</string>
     <string name="theme_pref_key">Theme Choice</string>
     <string name="theme_pref_title">Color Theme</string>
+    <string name="widget_pref_key">Widget Choice</string>
+    <string name="widget_pref_title">Widget Display</string>
 
     <string name="ingredients_title">Ingredients</string>
     <string name="error_loading_items">Nothing to show :/</string>
 
-    //strings for notification media player
+    //strings for the media player
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="restart">Restart</string>
-    <string name="notification_title">Recipe Step</string>
-    <string name="notification_text">DMBake</string>
-    <string name="notification_channel_id">DMBAKE_CHANNEL</string>
+
+    <string name="appwidget_text">DM Bake</string>
+    <string name="add_widget">Add widget</string>
 
 </resources>

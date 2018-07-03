@@ -1,7 +1,10 @@
 package com.example.dmbake.ui;
 
 import android.annotation.SuppressLint;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,10 +18,13 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import com.example.dmbake.R;
+import com.example.dmbake.RecipeWidgetProvider;
 import com.example.dmbake.SettingsActivity;
 import com.example.dmbake.adapters.RecipeListAdapter;
+import com.example.dmbake.models.IngredientsParcelable;
 import com.example.dmbake.models.RecipeParcelable;
 import com.example.dmbake.utils.JsonParseUtils;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +32,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,6 +44,8 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
     GridView recipesGridView;
 
     ArrayList<RecipeParcelable> recipeParcelables;
+
+    private final static String TAG = RecipeListActivity.class.getSimpleName();
 
     private boolean isTab;
 
@@ -100,20 +110,62 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         super.onRestoreInstanceState(savedInstanceState);
         recipeParcelables = savedInstanceState.getParcelableArrayList("RECIPE_LIST");
         if(savedInstanceState != null) {
-            RecipeListAdapter adapter = new RecipeListAdapter(getApplicationContext(), recipeParcelables);
-            recipesGridView.setAdapter(adapter);
-            recipesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    Toast.makeText(RecipeListActivity.this, "" + recipeParcelables.get(position).getRecipeName(),
-                            Toast.LENGTH_SHORT).show();
-                    Intent startRecipeDetailsIntent = new Intent(getApplicationContext(), RecipeDetailsActivity.class);
-                    startRecipeDetailsIntent.putExtra("recipe", recipeParcelables.get(position));
-                    startActivity(startRecipeDetailsIntent);
-                }
-            });
+            loadRecipesView();
         }
+    }
+
+    private void loadRecipesView() {
+        RecipeListAdapter adapter = new RecipeListAdapter(getApplicationContext(), recipeParcelables);
+        recipesGridView.setAdapter(adapter);
+        recipesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                Toast.makeText(RecipeListActivity.this, "" + recipeParcelables.get(position).getRecipeName(),
+                        Toast.LENGTH_SHORT).show();
+                //save recipe
+                saveRecipe(position);
+                //start recipe details intent
+                Intent startRecipeDetailsIntent = new Intent(getApplicationContext(), RecipeDetailsActivity.class);
+                startRecipeDetailsIntent.putExtra("recipe", recipeParcelables.get(position));
+                startActivity(startRecipeDetailsIntent);
+            }
+        });
+    }
+
+    public void saveRecipe(int position) {
+        SharedPreferences.Editor editor = getSharedPreferences("RECIPE_PREF", MODE_PRIVATE).edit();
+        //NOTE will work with same data file, if it updates without user reopening and selecting a different
+        //new recipe, then widget might not have up to date info in preferences, in which case it will load
+        //default no grid view (unless data was only appended to JSON and not changed completely)
+        editor.putInt("Recipe_ID", recipeParcelables.get(position).getRecipeId());
+        editor.putString("Recipe_Name", recipeParcelables.get(position).getRecipeName());
+        //todo figure out a way to store and show ingredients (preferably without a db)
+        ArrayList<IngredientsParcelable> ingredientsParcelables = recipeParcelables.get(position).getIngredients();
+        editor.putInt("Ingredients_Size", ingredientsParcelables.size());
+        for(int i=0; i < ingredientsParcelables.size(); i++) {
+            if(!ingredientsParcelables.get(i).getIngredientName().isEmpty()){
+                Log.d(TAG, "Ingredient Name: " + ingredientsParcelables.get(i).getIngredientName());
+                editor.putString("Ingredient_name_" + i, ingredientsParcelables.get(i).getIngredientName());
+            } else {
+                editor.putString("Ingredient_name_" + i, "");
+            }
+        }
+        editor.apply();
+        //update app widget
+        Log.d(TAG, "recipe saved!?");
+        Log.d(TAG, "Ingredients Size: " + ingredientsParcelables.size());
+        //Triggers Widget to update information found here: https://stackoverflow.com/questions/20273543/appwidgetmanager-getappwidgetids-in-activity-returns-an-empty-list/20372326
+        //this is so the widget displays last recipe clicked on by the user
+        Intent intent = new Intent(this, RecipeWidgetProvider.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), RecipeWidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+//
+        //trigger data update to handle the GV widgets and force a data refresh
+        AppWidgetManager.getInstance(getApplication()).notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view);
+
+        sendBroadcast(intent);
     }
 
     @Override
@@ -153,7 +205,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         @Override
         protected ArrayList<RecipeParcelable> doInBackground(Void... voids) {
             ArrayList<RecipeParcelable> recipes = null;
-            String jsonString = null;
+            String jsonString;
 
             try {
                 InputStream inputStream = getResources().getAssets().open("recipeJSON");
@@ -186,19 +238,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
             Log.d("recipes", "" + recipes);
             if (recipes != null) {
                 recipeParcelables = recipes;
-                RecipeListAdapter adapter = new RecipeListAdapter(getApplicationContext(), recipes);
-                recipesGridView.setAdapter(adapter);
-                recipesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view,
-                                            int position, long id) {
-                        Toast.makeText(RecipeListActivity.this, "" + recipes.get(position).getRecipeName(),
-                                Toast.LENGTH_SHORT).show();
-                        Intent startRecipeDetailsIntent = new Intent(getApplicationContext(), RecipeDetailsActivity.class);
-                        startRecipeDetailsIntent.putExtra("recipe", recipes.get(position));
-                        startActivity(startRecipeDetailsIntent);
-                    }
-                });
+                loadRecipesView();
             } else {
                 Toast.makeText(RecipeListActivity.this, "Async task cancelled!",
                         Toast.LENGTH_SHORT).show();

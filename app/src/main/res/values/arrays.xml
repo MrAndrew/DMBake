@@ -17,5 +17,12 @@
         <item>@style/AppTheme</item>
     </string-array>
 
+    <string-array name="widget_options">
+
+    </string-array>
+
+    <string-array name="widget_options_values">
+
+    </string-array>
 
 </resources>

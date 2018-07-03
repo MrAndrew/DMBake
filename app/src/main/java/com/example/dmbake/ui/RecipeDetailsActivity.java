@@ -58,17 +58,19 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
                 Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
                 ft.replace(R.id.recipe_details_container, fragment);
                 ft.commit();
+                //load ingredients by default in tab view
+                onListItemClick(false, 0);
             }
 
         } else {
             mTwoPane = false;
-            // Only create new fragments when there is no previously saved state
-            if (savedInstanceState == null) {
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
-                ft.replace(R.id.recipe_details_container, fragment);
-                ft.commit();
-            }
+                // Only create new fragments when there is no previously saved state
+                if (savedInstanceState == null) {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
+                    ft.replace(R.id.recipe_details_container, fragment);
+                    ft.commit();
+                }
         }
     }
 
