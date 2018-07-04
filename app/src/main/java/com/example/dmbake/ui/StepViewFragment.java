@@ -1,27 +1,16 @@
 package com.example.dmbake.ui;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.dmbake.R;
@@ -49,28 +38,19 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
-
 public class StepViewFragment extends Fragment implements ExoPlayer.EventListener{
-
-    private static final String TAG = "StepViewFragment";
 
     //initialize ExoPlayer stuff
     private SimpleExoPlayer mExoPlayer;
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
-    private NotificationManager mNotificationManager;
     SimpleExoPlayerView exoPlayerView;
     ImageView mPlaceHolderIv;
     TextView stepTextView;
 
-    private boolean isStep;
-    private int stepIndex;
+    private final static String TAG = StepViewFragment.class.getSimpleName();
 
     private static final String RECIPE_KEY = "recipe_key";
-    private RecipeParcelable recipe;
-    private ArrayList<IngredientsParcelable> recipeIngredients;
-    private ArrayList<StepsParcelable> recipeSteps;
 
     public static StepViewFragment newInstance(RecipeParcelable recipe, int stepIndex) {
         StepViewFragment fragment = new StepViewFragment();
@@ -85,11 +65,11 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        recipe = (RecipeParcelable) getArguments().getParcelable(
+        RecipeParcelable recipe = (RecipeParcelable) getArguments().getParcelable(
                 RECIPE_KEY);
-        recipeIngredients = recipe.getIngredients();
-        recipeSteps = recipe.getSteps();
-        stepIndex = getArguments().getInt("stepIndex");
+        ArrayList<IngredientsParcelable> recipeIngredients = recipe.getIngredients();
+        ArrayList<StepsParcelable> recipeSteps = recipe.getSteps();
+        int stepIndex = getArguments().getInt("stepIndex");
 
         View returnView = inflater.inflate(R.layout.fragment_recipe_step, container, false);
 
@@ -106,8 +86,6 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     }
 
     private void loadStep(StepsParcelable step) {
-        //TODO CREATE AND SET STEP DISPLAY
-
         //load step instructions
         stepTextView.setText(step.getDescription());
         stepTextView.setVisibility(View.VISIBLE);
@@ -185,7 +163,6 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
      * Initialize ExoPlayer.
      * @param mediaUri The URI of the sample to play.
      */
-    //TODO CUSTOMIZE EXO PLAYER CONTROLS AND FIX ORIENTATION CHANGE ERROR/BUG
     private void initializePlayer(Uri mediaUri) {
         if (mExoPlayer == null) {
             // Create an instance of the ExoPlayer.

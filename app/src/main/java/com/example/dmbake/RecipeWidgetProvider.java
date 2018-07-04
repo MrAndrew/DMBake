@@ -6,24 +6,12 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
-import com.example.dmbake.models.RecipeParcelable;
 import com.example.dmbake.ui.RecipeListActivity;
-import com.example.dmbake.utils.JsonParseUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Implementation of App Widget functionality.
@@ -39,10 +27,10 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
         Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
         int height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
         RemoteViews remoteViews;
-        if (height < 120) {
+        if (height < 100) {
             remoteViews = getRecipeTitleRV(context, RecipeName);
         } else {
-            remoteViews = getIngredientsListView(context, RecipeName, Ingredients, appWidgetId);
+            remoteViews = getIngredientsListView(context, RecipeName);
         }
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
@@ -58,7 +46,7 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
         //this is because a widget is technically a separate application and PendingIntents wrap around normal Intents
         //and allow them to be accessed from other applications
         Intent intent = new Intent(context, RecipeListActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //sets actual click action on the title text view
         views.setOnClickPendingIntent(R.id.appwidget_title_tv, pendingIntent);
 
@@ -66,18 +54,13 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
 
     }
 
-    private static RemoteViews getIngredientsListView(Context context, String RecipeName, ArrayList<String> Ingredients, int appWidgetId) {
+    private static RemoteViews getIngredientsListView(Context context, String RecipeName) {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_list_view);
         //set title of recipe
-        views.setTextViewText(R.id.widget_list_view_title_tv, RecipeName);
+        views.setTextViewText(R.id.widget_list_view_title_tv, ("Recipe: " + RecipeName + " \nIngredients:"));
         //set list of ingredients with the ListWidgetService intent to act as the adapter for the LV
         Intent intent = new Intent(context, ListWidgetService.class);
-//        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-//        intent.putExtra("Ingredients", Ingredients);
-//        // When intents are compared, the extras are ignored, so we need to embed the extras
-//        // into the data so that the extras will not be ignored.
-//        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
         views.setRemoteAdapter(R.id.widget_list_view, intent);
         //Create an Intent to launch RecipeListActivity with clicked
         //*needs to be wrapped in a pending intent because RemoteViews cannot simple add onClick attribute like normal
@@ -88,11 +71,10 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
         //sets actual click action on the title text view
         views.setPendingIntentTemplate(R.id.widget_list_view, appPendingIntent);
         //setting an empty view in case of no data
+        //commented out this line b/c for some reason would always register as empty and even if ingredients are null
+        //for some reason the title will still need to be displayed and the count should return 0 and not display the
+        //listview anyway...
 //        views.setEmptyView(R.id.widget_list_view, R.id.empty_view);
-
-        for(int i = 0; i<Ingredients.size(); i++) {
-            Log.d("WidgetProvider", "Ingredient name: " + Ingredients.get(i));
-        }
 
         return views;
     }
@@ -100,7 +82,9 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
     //onUpdate is called whenever we create a new widget and on the update interval in the info.xml file
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // There may be multiple widgets active, so update all of them
+        // There may be multiple widgets active, so update all of them from shared preference save
+        //admittingly this only allows one recipe view across all widget instances, so the user cannot
+        //have multiple widgets running each displaying a different recipe
         SharedPreferences sharedPreferences = context.getSharedPreferences("RECIPE_PREF", Context.MODE_PRIVATE);
         String recipeName = sharedPreferences.getString("Recipe_Name", "recipe name default");
         int numOfIngredients = sharedPreferences.getInt("Ingredients_Size", 0);
@@ -111,12 +95,8 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
             ingredient = sharedPreferences.getString("Ingredient_name_" + i, "");
             Ingredients.add(ingredient);
         }
-        Log.d("WidgetProvider", "Recipe Name: " + recipeName);
-        Log.d("WidgetProvider", "numOfIngredients: " + numOfIngredients);
-        Log.d("WidgetProvider", "IngredientsList: " + Ingredients);
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId, recipeName, Ingredients);
-//            RemoteViews remoteViews = updateWidgetListView(context, appWidgetIds[i]);
         }
     }
 
@@ -128,13 +108,6 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-        if (intent.getAction().equals(TOAST_ACTION)) {
-            int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
-            int viewIndex = intent.getIntExtra(EXTRA_ITEM, 0);
-            Toast.makeText(context, "Touched view " + viewIndex, Toast.LENGTH_SHORT).show();
-        }
         super.onReceive(context, intent);
     }
 

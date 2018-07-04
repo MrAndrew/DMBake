@@ -1,7 +1,5 @@
 package com.example.dmbake.utils;
 
-import android.util.Log;
-
 import com.example.dmbake.models.IngredientsParcelable;
 import com.example.dmbake.models.RecipeParcelable;
 import com.example.dmbake.models.StepsParcelable;
@@ -13,8 +11,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class JsonParseUtils {
-
-    private static final String TAG = JsonParseUtils.class.getSimpleName();
 
     //Keys for specific recipes
     private static final String KEY_RECIPE_ID = "id";
@@ -89,7 +85,6 @@ public class JsonParseUtils {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "recipeList utils" + recipeList);
         return recipeList;
     }
 

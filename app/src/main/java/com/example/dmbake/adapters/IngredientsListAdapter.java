@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.example.dmbake.R;
 import com.example.dmbake.models.IngredientsParcelable;
-import com.example.dmbake.models.StepsParcelable;
 
 import java.util.ArrayList;
 
@@ -73,7 +72,7 @@ public class IngredientsListAdapter extends RecyclerView.Adapter<IngredientsList
             //set values of views here from data source
            ingredientItemView.setTag(index);
            ingredientNameView.setText(recipeIngredients.get(index).getIngredientName());
-           ingredientQuantityView.setText(recipeIngredients.get(index).getQuantity().toString());
+           ingredientQuantityView.setText(String.valueOf(recipeIngredients.get(index).getQuantity()));
            ingredientMeausreView.setText(recipeIngredients.get(index).getMeasure());
         }
 

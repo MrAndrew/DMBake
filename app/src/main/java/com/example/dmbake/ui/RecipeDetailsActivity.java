@@ -3,28 +3,17 @@ package com.example.dmbake.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.example.dmbake.R;
-import com.example.dmbake.adapters.RecipeDetailsListAdapter;
-import com.example.dmbake.adapters.RecipeListAdapter;
-import com.example.dmbake.models.IngredientsParcelable;
 import com.example.dmbake.models.RecipeParcelable;
-import com.example.dmbake.models.StepsParcelable;
 
-import java.util.ArrayList;
+import java.util.Objects;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDetailsFragment.RecyclerViewClickListener{
 
@@ -43,10 +32,10 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         setContentView(R.layout.activity_recipe_details);
 
         //get data from intent that started the activity
-        recipe = getIntent().getExtras().getParcelable("recipe");
+        recipe = Objects.requireNonNull(getIntent().getExtras()).getParcelable("recipe");
 
         //set screen title
-        setTitle(recipe.getRecipeName());
+        setTitle(Objects.requireNonNull(recipe).getRecipeName());
 
         // Determine if you're creating a two-pane or single-pane display
         if (findViewById(R.id.recipe_step_container2) != null) {
@@ -74,7 +63,6 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         }
     }
 
-    //TODO MAKE SAVED INSTANCE STATE WORK WITH FRAGMENTS
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -89,7 +77,6 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         recipe = savedInstanceState.getParcelable("RECIPE");
         mTwoPane = savedInstanceState.getBoolean("IS_TWO_PANE");
         if(savedInstanceState != null) {
-          //TODO RESET FRAGMENT VIEWS HERE
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
             ft.replace(R.id.recipe_details_container, fragment);
@@ -140,7 +127,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
                 Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex);
                 ft.replace(R.id.recipe_step_container2, fragment);
                 ft.commit();
-            } else if (!isStep) {
+            } else {
                 Toast.makeText(this, "Ingredients!",
                         Toast.LENGTH_SHORT).show();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -148,7 +135,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
                 ft.replace(R.id.recipe_step_container2, fragment);
                 ft.commit();
             }
-        } else if(!mTwoPane) {
+        } else {
             //if not tablet view, then will start a new intent which will then decide which fragment to display
             if (isStep) {
                 Toast.makeText(this, "Step: " + (stepIndex),
@@ -158,7 +145,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
                 startRecipeStepViewAcitivity.putExtra("isStep", true);
                 startRecipeStepViewAcitivity.putExtra("stepIndex", stepIndex);
                 startActivity(startRecipeStepViewAcitivity);
-            } else if (!isStep){
+            } else {
                 Toast.makeText(this, "Ingredients!",
                         Toast.LENGTH_SHORT).show();
                 Intent startRecipeStepViewAcitivity = new Intent(this, RecipeStepViewActivity.class);

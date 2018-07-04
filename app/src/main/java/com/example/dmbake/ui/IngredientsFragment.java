@@ -21,8 +21,6 @@ public class IngredientsFragment extends Fragment {
     RecyclerView ingredientsRv;
 
     private static final String RECIPE_KEY = "recipe_key";
-    private RecipeParcelable recipe;
-    private ArrayList<IngredientsParcelable> recipeIngredients;
 
     public static IngredientsFragment newInstance(RecipeParcelable recipe) {
         IngredientsFragment fragment = new IngredientsFragment();
@@ -36,9 +34,9 @@ public class IngredientsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        recipe = (RecipeParcelable) getArguments().getParcelable(
+        RecipeParcelable recipe = (RecipeParcelable) getArguments().getParcelable(
                 RECIPE_KEY);
-        recipeIngredients = recipe.getIngredients();
+        ArrayList<IngredientsParcelable> recipeIngredients = recipe.getIngredients();
 
         View returnView = inflater.inflate(R.layout.fragment_recipe_ingredients, container, false);
 

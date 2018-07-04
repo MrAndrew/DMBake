@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#09C"
+    android:background="@color/colorPrimary"
     android:padding="@dimen/widget_margin">
 
     <TextView
@@ -12,16 +12,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_margin="8dp"
-        android:background="#09C"
+        android:background="@color/colorPrimary"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"
         android:textColor="#ffffff"
         android:textSize="18sp"
         android:textStyle="bold|italic" />
 
-    <ListView
-        android:id="@+id/widget_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </LinearLayout>

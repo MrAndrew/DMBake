@@ -20,14 +20,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/settings_menu_title"
-            android:parentActivityName=".ui.RecipeListActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.RecipeListActivity" />
-        </activity>
         <activity android:name=".ui.RecipeDetailsActivity" />
         <activity android:name=".ui.RecipeStepViewActivity" />
 

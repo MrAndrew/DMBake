@@ -8,10 +8,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -19,12 +15,10 @@ import android.widget.Toast;
 
 import com.example.dmbake.R;
 import com.example.dmbake.RecipeWidgetProvider;
-import com.example.dmbake.SettingsActivity;
 import com.example.dmbake.adapters.RecipeListAdapter;
 import com.example.dmbake.models.IngredientsParcelable;
 import com.example.dmbake.models.RecipeParcelable;
 import com.example.dmbake.utils.JsonParseUtils;
-import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,8 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,21 +37,11 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
 
     ArrayList<RecipeParcelable> recipeParcelables;
 
-    private final static String TAG = RecipeListActivity.class.getSimpleName();
-
-    private boolean isTab;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_recipe_list);
         ButterKnife.bind(this);
-
-        if(findViewById(R.id.recipe_list_gv_tab) != null) {
-            isTab = true;
-        } else {
-            isTab = false;
-        }
 
         if (savedInstanceState == null) {
             String title = getResources().getString(R.string.app_name);
@@ -71,26 +53,6 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
 
     private void LoadRecipes() {
         new LoadRecipesQueryTask().execute();
-    }
-
-    //inflate app settings option
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.app_settings_menu, menu);
-        return true;
-    }
-
-    //starts setting screen activity if button is pressed
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
-            startActivity(startSettingsActivity);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -109,9 +71,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         recipeParcelables = savedInstanceState.getParcelableArrayList("RECIPE_LIST");
-        if(savedInstanceState != null) {
-            loadRecipesView();
-        }
+        loadRecipesView();
     }
 
     private void loadRecipesView() {
@@ -140,21 +100,21 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         //default no grid view (unless data was only appended to JSON and not changed completely)
         editor.putInt("Recipe_ID", recipeParcelables.get(position).getRecipeId());
         editor.putString("Recipe_Name", recipeParcelables.get(position).getRecipeName());
-        //todo figure out a way to store and show ingredients (preferably without a db)
+        //This is a little complicated, but working way to save and load the widget with the last clicked recipe the
+        //user accessed within the app. This allows us not to have to create a DB with provider which would demand
+        //3-4 more coding files, yet still shows the user the recipe and ingredients needed for it. Currently it
+        //will only show ingredient names, but can (in theory) easily add the measure type and amount if desired later.
         ArrayList<IngredientsParcelable> ingredientsParcelables = recipeParcelables.get(position).getIngredients();
         editor.putInt("Ingredients_Size", ingredientsParcelables.size());
         for(int i=0; i < ingredientsParcelables.size(); i++) {
             if(!ingredientsParcelables.get(i).getIngredientName().isEmpty()){
-                Log.d(TAG, "Ingredient Name: " + ingredientsParcelables.get(i).getIngredientName());
                 editor.putString("Ingredient_name_" + i, ingredientsParcelables.get(i).getIngredientName());
-            } else {
-                editor.putString("Ingredient_name_" + i, "");
+//                editor.putString("Ingredient_quantity_" + i, ingredientsParcelables.get(i).getQuantity().toString());
+//                editor.putString("Ingredient_measure_" + i, ingredientsParcelables.get(i).getMeasure());
             }
         }
         editor.apply();
         //update app widget
-        Log.d(TAG, "recipe saved!?");
-        Log.d(TAG, "Ingredients Size: " + ingredientsParcelables.size());
         //Triggers Widget to update information found here: https://stackoverflow.com/questions/20273543/appwidgetmanager-getappwidgetids-in-activity-returns-an-empty-list/20372326
         //this is so the widget displays last recipe clicked on by the user
         Intent intent = new Intent(this, RecipeWidgetProvider.class);
@@ -218,7 +178,6 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
                 jsonString = stringBuilder.toString();
 
                 recipes = JsonParseUtils.getRecipes(jsonString);
-                Log.d("recipe doInBack", "" + recipes);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -235,7 +194,6 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
 
         @Override
         protected void onPostExecute(final ArrayList<RecipeParcelable> recipes) {
-            Log.d("recipes", "" + recipes);
             if (recipes != null) {
                 recipeParcelables = recipes;
                 loadRecipesView();

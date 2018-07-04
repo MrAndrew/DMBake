@@ -5,22 +5,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.example.dmbake.R;
-import com.example.dmbake.models.IngredientsParcelable;
 import com.example.dmbake.models.RecipeParcelable;
-import com.example.dmbake.models.StepsParcelable;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 public class RecipeStepViewActivity extends AppCompatActivity {
 
     @BindView(R.id.recipe_details_rv)
     RecyclerView recipeDetailsRv;
-
-    private static String TAG = RecipeStepViewActivity.class.getSimpleName();
 
     private RecipeParcelable recipe;
     private boolean isStep;
@@ -37,8 +30,6 @@ public class RecipeStepViewActivity extends AppCompatActivity {
             recipe = getIntent().getExtras().getParcelable("recipe");
             isStep = getIntent().getBooleanExtra("isStep", false);
             stepIndex = getIntent().getIntExtra("stepIndex", 0);
-            Log.v(TAG, "isStep: " + isStep);
-            Log.v(TAG, "stepIndex: " + stepIndex);
             //set screen title
             setTitle(recipe.getRecipeName());
             //load correct fragment view
@@ -60,7 +51,6 @@ public class RecipeStepViewActivity extends AppCompatActivity {
         }
     }
 
-    //TODO MAKE SAVED INSTANCE STATE WORK WITH FRAGMENTS
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -77,7 +67,7 @@ public class RecipeStepViewActivity extends AppCompatActivity {
         isStep = savedInstanceState.getBoolean("IS_STEP");
         stepIndex = savedInstanceState.getInt("STEP_INDEX");
         if(savedInstanceState != null) {
-            //TODO RESET FRAGMENT VIEWS HERE
+            //reload fragments when app instance is restored
             loadFragment();
         }
     }
