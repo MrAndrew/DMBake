@@ -17,14 +17,12 @@ import butterknife.BindView;
 
 public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDetailsFragment.RecyclerViewClickListener{
 
-    @BindView(R.id.recipe_details_rv)
-    RecyclerView recipeDetailsRv;
-
     private RecipeParcelable recipe;
 
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
     public boolean mTwoPane;
+    public int mStepIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +36,14 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         setTitle(Objects.requireNonNull(recipe).getRecipeName());
 
         // Determine if you're creating a two-pane or single-pane display
-        if (findViewById(R.id.recipe_step_container2) != null) {
+        if (findViewById(R.id.recipe_details_container2) != null) {
             // This LinearLayout will only initially exist in the two-pane tablet case
             mTwoPane = true;
             // Only create new fragments when there is no previously saved state
             if (savedInstanceState == null) {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
-                ft.replace(R.id.recipe_details_container, fragment);
+                ft.replace(R.id.recipe_details_container2, fragment);
                 ft.commit();
                 //load ingredients by default in tab view
                 onListItemClick(false, 0);
@@ -69,6 +67,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         //restores saved instances between lifecyle events
         outState.putParcelable("RECIPE", recipe);
         outState.putBoolean("IS_TWO_PANE", mTwoPane);
+        outState.putInt("STEP_INDEX", mStepIndex);
     }
 
     @Override
@@ -76,11 +75,19 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         super.onRestoreInstanceState(savedInstanceState);
         recipe = savedInstanceState.getParcelable("RECIPE");
         mTwoPane = savedInstanceState.getBoolean("IS_TWO_PANE");
+        mStepIndex = savedInstanceState.getInt("STEP_INDEX");
         if(savedInstanceState != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
             ft.replace(R.id.recipe_details_container, fragment);
             ft.commit();
+            //load last step or ingredients
+            if(mStepIndex != -1) {
+                onListItemClick( true, mStepIndex);
+            } else {
+                onListItemClick(false, mStepIndex);
+            }
+
         }
     }
 
@@ -120,14 +127,16 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         if(mTwoPane) {
             //if tab view is used, then calls the fragment directly
             if (isStep) {
+                mStepIndex = stepIndex;
                 Toast.makeText(this, "Step: " + stepIndex,
                         Toast.LENGTH_SHORT).show();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 //position - 1 b/c ingredients takes up position 0 within the list
-                Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex);
+                Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex, mTwoPane);
                 ft.replace(R.id.recipe_step_container2, fragment);
                 ft.commit();
             } else {
+                mStepIndex = -1;
                 Toast.makeText(this, "Ingredients!",
                         Toast.LENGTH_SHORT).show();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

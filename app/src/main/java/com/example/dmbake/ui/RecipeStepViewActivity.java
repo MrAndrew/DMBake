@@ -40,7 +40,7 @@ public class RecipeStepViewActivity extends AppCompatActivity {
     private void loadFragment() {
         if (isStep) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex);
+            Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex, false);
             ft.replace(R.id.recipe_step_container, fragment);
             ft.commit();
         } else if (!isStep) {

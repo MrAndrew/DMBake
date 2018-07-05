@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.RecipeListActivity">
 
     <GridView
         android:id="@+id/recipe_list_gv_tab"
@@ -19,4 +22,4 @@
         android:stretchMode="columnWidth"
         android:gravity="center" />
 
-</ScrollView>
+</android.support.constraint.ConstraintLayout>

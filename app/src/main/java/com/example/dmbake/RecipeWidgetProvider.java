@@ -58,7 +58,7 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_list_view);
         //set title of recipe
-        views.setTextViewText(R.id.widget_list_view_title_tv, ("Recipe: " + RecipeName + " \nIngredients:"));
+        views.setTextViewText(R.id.widget_list_view_title_tv, (RecipeName + " Recipe \nIngredients:"));
         //set list of ingredients with the ListWidgetService intent to act as the adapter for the LV
         Intent intent = new Intent(context, ListWidgetService.class);
         views.setRemoteAdapter(R.id.widget_list_view, intent);

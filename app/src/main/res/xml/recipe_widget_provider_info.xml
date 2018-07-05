@@ -5,7 +5,7 @@
     android:initialLayout="@layout/recipe_widget_provider"
     android:minHeight="40dp"
     android:minWidth="110dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/icons8_cookies_80"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen">

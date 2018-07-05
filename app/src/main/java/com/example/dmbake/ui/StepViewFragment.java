@@ -52,11 +52,12 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
 
     private static final String RECIPE_KEY = "recipe_key";
 
-    public static StepViewFragment newInstance(RecipeParcelable recipe, int stepIndex) {
+    public static StepViewFragment newInstance(RecipeParcelable recipe, int stepIndex, boolean isTab) {
         StepViewFragment fragment = new StepViewFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(RECIPE_KEY, recipe);
         bundle.putInt("stepIndex", stepIndex);
+        bundle.putBoolean("isTab", isTab);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -70,6 +71,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
         ArrayList<IngredientsParcelable> recipeIngredients = recipe.getIngredients();
         ArrayList<StepsParcelable> recipeSteps = recipe.getSteps();
         int stepIndex = getArguments().getInt("stepIndex");
+
 
         View returnView = inflater.inflate(R.layout.fragment_recipe_step, container, false);
 
@@ -179,8 +181,9 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             mExoPlayer.prepare(mediaSource);
             mExoPlayer.setPlayWhenReady(true);
             //to make video fullscreen on phone flip
+            boolean isTab = getArguments().getBoolean("isTab");
             if (getActivity().getResources().getConfiguration().orientation ==
-                    Configuration.ORIENTATION_LANDSCAPE && mExoPlayer != null) {
+                    Configuration.ORIENTATION_LANDSCAPE && mExoPlayer != null && !isTab) {
                 ViewGroup.LayoutParams params = exoPlayerView.getLayoutParams();
                 params.width = params.MATCH_PARENT;
                 params.height = params.MATCH_PARENT;

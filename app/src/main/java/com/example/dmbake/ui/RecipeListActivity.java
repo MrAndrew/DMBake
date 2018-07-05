@@ -24,24 +24,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import java.util.ArrayList;
-
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecipeListActivity extends AppCompatActivity implements View.OnClickListener {
 
-    @BindView(R.id.recipe_list_gv)
     GridView recipesGridView;
-
+    boolean isTab;
     ArrayList<RecipeParcelable> recipeParcelables;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_recipe_list);
         ButterKnife.bind(this);
+
+
+        if(findViewById(R.id.recipe_list_gv_tab) != null) {
+            isTab = true;
+        } else {
+            isTab = false;
+        }
 
         if (savedInstanceState == null) {
             String title = getResources().getString(R.string.app_name);
@@ -65,16 +69,23 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         super.onSaveInstanceState(outState);
         //restores saved instances between lifecyle events
         outState.putParcelableArrayList("RECIPE_LIST", recipeParcelables);
+        outState.putBoolean("TAB_VIEW", isTab);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         recipeParcelables = savedInstanceState.getParcelableArrayList("RECIPE_LIST");
-        loadRecipesView();
+        isTab = savedInstanceState.getBoolean("TAB_VIEW");
+        loadRecipesView(isTab);
     }
 
-    private void loadRecipesView() {
+    private void loadRecipesView(boolean isTabView) {
+        if(isTabView) {
+            recipesGridView = findViewById(R.id.recipe_list_gv_tab);
+        } else {
+            recipesGridView = findViewById(R.id.recipe_list_gv);
+        }
         RecipeListAdapter adapter = new RecipeListAdapter(getApplicationContext(), recipeParcelables);
         recipesGridView.setAdapter(adapter);
         recipesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -196,7 +207,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         protected void onPostExecute(final ArrayList<RecipeParcelable> recipes) {
             if (recipes != null) {
                 recipeParcelables = recipes;
-                loadRecipesView();
+                loadRecipesView(isTab);
             } else {
                 Toast.makeText(RecipeListActivity.this, "Async task cancelled!",
                         Toast.LENGTH_SHORT).show();

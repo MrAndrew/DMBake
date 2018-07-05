@@ -11,7 +11,7 @@
         android:layout_height="wrap_content">
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/recipe_details_container"
+            android:id="@+id/recipe_details_container2"
             android:layout_width="400dp"
             android:layout_height="wrap_content">
 
