@@ -8,6 +8,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class JsonParseUtils {
@@ -31,18 +37,34 @@ public class JsonParseUtils {
     private static final String KEY_STEP_VIDEO_URL = "videoURL";
     private static final String KEY_STEP_THUMBNAIL_URL = "thumbnailURL";
 
+    //URL
+    final private static String RECIPE_JSON_URL = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
 
-    public JSONObject getRecipesJsonObj(String recipeJson) {
-        JSONObject recipesObj = new JSONObject();
+
+    public static ArrayList<RecipeParcelable> getRecipesFromUrl() {
+        String dlJsonString = null;
+        HttpURLConnection urlConnection = null;
+        URL recipeUrl = null;
         try {
-            recipesObj = new JSONObject(recipeJson);
-        } catch (JSONException e) {
+            recipeUrl = new URL(RECIPE_JSON_URL);
+            urlConnection = (HttpURLConnection) recipeUrl.openConnection();
+            InputStream in = urlConnection.getInputStream();
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            StringBuilder responseStrBuilder = new StringBuilder();
+
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null)
+                responseStrBuilder.append(inputStr);
+            dlJsonString = responseStrBuilder.toString();
+        }catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            urlConnection.disconnect();
         }
-        return recipesObj;
+        return getRecipesFromJson(dlJsonString);
     }
 
-    public static ArrayList<RecipeParcelable> getRecipes(String recipeJson) {
+    public static ArrayList<RecipeParcelable> getRecipesFromJson(String recipeJson) {
 
         ArrayList<RecipeParcelable> recipeList = new ArrayList<RecipeParcelable>();
 

@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import butterknife.ButterKnife;
 
@@ -178,20 +180,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
             ArrayList<RecipeParcelable> recipes = null;
             String jsonString;
 
-            try {
-                InputStream inputStream = getResources().getAssets().open("recipeJSON");
-                BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                StringBuilder stringBuilder = new StringBuilder();
-
-                String inputStr;
-                while ((inputStr = streamReader.readLine()) != null)
-                    stringBuilder.append(inputStr);
-                jsonString = stringBuilder.toString();
-
-                recipes = JsonParseUtils.getRecipes(jsonString);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            recipes = JsonParseUtils.getRecipesFromUrl();
 
             return recipes;
         }

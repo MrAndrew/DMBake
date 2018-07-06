@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -106,12 +107,15 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             initializeMediaSession();
             exoPlayerView.setUseController(true);
         } else if(!stepThumbUrl.isEmpty()) {
-            mPlaceHolderIv.setVisibility(View.GONE);
-            exoPlayerView.setVisibility(View.VISIBLE);
-            initializePlayer(Uri.parse(stepThumbUrl));
-            //initialize MediaSession
-            initializeMediaSession();
-            exoPlayerView.setUseController(true);
+            //First reviewer stated to treat this as a picture and an error if a video
+            mPlaceHolderIv.setVisibility(View.VISIBLE);
+            exoPlayerView.setVisibility(View.GONE);
+            releasePlayer();
+            Picasso.get()
+                    .load(stepThumbUrl)
+                    .placeholder(R.drawable.default_player_pic)
+                    .error(R.drawable.default_player_pic)
+                    .into(mPlaceHolderIv);
         } else {
             exoPlayerView.setVisibility(View.GONE);
             releasePlayer();

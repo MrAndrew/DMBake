@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">DMBake</string>
 
+    <string name="recipes_url">"https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json"</string>
+
     <!-- settings menu stuff -->
     <string name="settings_menu_title">App Settings</string>
     <string name="theme_pref_key">Theme Choice</string>
