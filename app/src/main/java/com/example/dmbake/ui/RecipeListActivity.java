@@ -188,7 +188,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
 
         @Override
         protected void onCancelled() {
-            Toast.makeText(RecipeListActivity.this, "Async task cancelled!",
+            Toast.makeText(getApplicationContext(), "Async task cancelled!",
                     Toast.LENGTH_SHORT).show();
         }
 
@@ -198,7 +198,7 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
                 recipeParcelables = recipes;
                 loadRecipesView(isTab);
             } else {
-                Toast.makeText(RecipeListActivity.this, "Async task cancelled!",
+                Toast.makeText(getApplicationContext(), "Async task cancelled!",
                         Toast.LENGTH_SHORT).show();
             }
         }

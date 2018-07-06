@@ -76,7 +76,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         recipe = savedInstanceState.getParcelable("RECIPE");
         mTwoPane = savedInstanceState.getBoolean("IS_TWO_PANE");
         mStepIndex = savedInstanceState.getInt("STEP_INDEX");
-        if(savedInstanceState != null) {
+        if(savedInstanceState != null && !mTwoPane) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
             ft.replace(R.id.recipe_details_container, fragment);
@@ -87,7 +87,17 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
             } else {
                 onListItemClick(false, mStepIndex);
             }
-
+        } else if(savedInstanceState != null && mTwoPane) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
+            ft.replace(R.id.recipe_details_container2, fragment);
+            ft.commit();
+            //load last step or ingredients
+            if(mStepIndex != -1) {
+                onListItemClick( true, mStepIndex);
+            } else {
+                onListItemClick(false, mStepIndex);
+            }
         }
     }
 
