@@ -3,8 +3,11 @@ package com.example.dmbake.ui;
 import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dmbake.R;
@@ -27,6 +31,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecipeListActivity extends AppCompatActivity implements View.OnClickListener {
@@ -34,6 +41,8 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
     GridView recipesGridView;
     boolean isTab;
     ArrayList<RecipeParcelable> recipeParcelables;
+    @BindView(R.id.no_internet_tv)
+    TextView mNoInternetTv;
 
 
     @Override
@@ -52,9 +61,21 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         if (savedInstanceState == null) {
             String title = getResources().getString(R.string.app_name);
             setTitle(title);
-            LoadRecipes();
+            if (isConnected()) {
+                mNoInternetTv.setVisibility(View.GONE);
+                LoadRecipes();
+            } else {
+                mNoInternetTv.setVisibility(View.VISIBLE);
+            }
         }
 
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = Objects.requireNonNull(cm).getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     private void LoadRecipes() {
@@ -79,7 +100,16 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
         super.onRestoreInstanceState(savedInstanceState);
         recipeParcelables = savedInstanceState.getParcelableArrayList("RECIPE_LIST");
         isTab = savedInstanceState.getBoolean("TAB_VIEW");
-        loadRecipesView(isTab);
+        //so no errors if no internet connection on app restore and loads if reconnected inbetween
+        if(recipeParcelables != null) {
+            loadRecipesView(isTab);
+            mNoInternetTv.setVisibility(View.GONE);
+        } else if(recipeParcelables == null && isConnected()) {
+            mNoInternetTv.setVisibility(View.GONE);
+            LoadRecipes();
+        } else {
+            mNoInternetTv.setVisibility(View.VISIBLE);
+        }
     }
 
     private void loadRecipesView(boolean isTabView) {
@@ -164,6 +194,11 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onResume() {
         super.onResume();
+        //if internet connection restores inbetween
+        if(recipeParcelables == null && isConnected()) {
+            mNoInternetTv.setVisibility(View.GONE);
+            LoadRecipes();
+        }
     }
 
     @Override
