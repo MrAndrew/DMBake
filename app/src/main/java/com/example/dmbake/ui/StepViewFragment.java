@@ -46,6 +46,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
     private Long mPlayerPosition;
+    private boolean mPlaystate;
     SimpleExoPlayerView exoPlayerView;
     ImageView mPlaceHolderIv;
     TextView stepTextView;
@@ -68,9 +69,8 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        RecipeParcelable recipe = (RecipeParcelable) getArguments().getParcelable(
+        RecipeParcelable recipe = getArguments().getParcelable(
                 RECIPE_KEY);
-        ArrayList<IngredientsParcelable> recipeIngredients = recipe.getIngredients();
         ArrayList<StepsParcelable> recipeSteps = recipe.getSteps();
         int stepIndex = getArguments().getInt("stepIndex");
 
@@ -85,6 +85,8 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             exoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                     (getResources(), R.drawable.default_player_pic));
             mPlayerPosition = null;
+            //so video doesn't autoplay at first
+            mPlaystate = false;
             loadStep(recipeSteps.get(stepIndex));
         } else {
             //Restore the fragment's state here
@@ -95,6 +97,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             exoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                     (getResources(), R.drawable.default_player_pic));
             mPlayerPosition = savedInstanceState.getLong("PLAYER_POSITION");
+            mPlaystate = savedInstanceState.getBoolean("PLAYSTATE");
             loadStep(recipeSteps.get(stepIndex));
 
         }
@@ -110,6 +113,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
 //        outState.putInt("STEP_INDEX", getArguments().getInt("stepIndex"));
         if (mExoPlayer != null) {
             outState.putLong("PLAYER_POSITION", mExoPlayer.getCurrentPosition());
+            outState.putBoolean("PLAYSTATE", mExoPlayer.getPlayWhenReady());
         }
     }
 
@@ -209,7 +213,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(mediaSource);
             //so it won't auto play when device is flipped, but also not unless user pushes the play button
-            mExoPlayer.setPlayWhenReady(false);
+            mExoPlayer.setPlayWhenReady(mPlaystate);
             if (mPlayerPosition != null) {
                 mExoPlayer.seekTo(mPlayerPosition);
             }
@@ -277,6 +281,11 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     @Override
     public void onStop() {
         super.onStop();
+        if (mExoPlayer != null) {
+            mPlayerPosition = mExoPlayer.getCurrentPosition();
+            mPlaystate = mExoPlayer.getPlayWhenReady();
+            releasePlayer();
+        }
     }
 
     @Override
@@ -287,12 +296,16 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     @Override
     public void onPause() {
         super.onPause();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        RecipeParcelable recipe = getArguments().getParcelable(
+                RECIPE_KEY);
+        ArrayList<StepsParcelable> recipeSteps = recipe.getSteps();
+        int stepIndex = getArguments().getInt("stepIndex");
+        loadStep(recipeSteps.get(stepIndex));
     }
 
     @Override
