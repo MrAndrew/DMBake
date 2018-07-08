@@ -45,6 +45,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     private SimpleExoPlayer mExoPlayer;
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
+    private Long mPlayerPosition;
     SimpleExoPlayerView exoPlayerView;
     ImageView mPlaceHolderIv;
     TextView stepTextView;
@@ -83,9 +84,33 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             exoPlayerView.setVisibility(View.VISIBLE);
             exoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                     (getResources(), R.drawable.default_player_pic));
+            mPlayerPosition = null;
             loadStep(recipeSteps.get(stepIndex));
+        } else {
+            //Restore the fragment's state here
+            exoPlayerView = returnView.findViewById(R.id.exoPlayerView);
+            mPlaceHolderIv = returnView.findViewById(R.id.Placeholder_Iv);
+            stepTextView = returnView.findViewById(R.id.recipe_step_description);
+            exoPlayerView.setVisibility(View.VISIBLE);
+            exoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
+                    (getResources(), R.drawable.default_player_pic));
+            mPlayerPosition = savedInstanceState.getLong("PLAYER_POSITION");
+            loadStep(recipeSteps.get(stepIndex));
+
         }
+
         return returnView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //save the fragment's state
+//        outState.putParcelable("RECIPE", getArguments().getParcelable(RECIPE_KEY));
+//        outState.putInt("STEP_INDEX", getArguments().getInt("stepIndex"));
+        if (mExoPlayer != null) {
+            outState.putLong("PLAYER_POSITION", mExoPlayer.getCurrentPosition());
+        }
     }
 
     private void loadStep(StepsParcelable step) {
@@ -102,9 +127,9 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
         if(!stepVideo.isEmpty()) {
             mPlaceHolderIv.setVisibility(View.GONE);
             exoPlayerView.setVisibility(View.VISIBLE);
-            initializePlayer(Uri.parse(stepVideo));
             //initialize MediaSession
             initializeMediaSession();
+            initializePlayer(Uri.parse(stepVideo));
             exoPlayerView.setUseController(true);
         } else if(!stepThumbUrl.isEmpty()) {
             //First reviewer stated to treat this as a picture and an error if a video
@@ -183,7 +208,11 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+            //so it won't auto play when device is flipped, but also not unless user pushes the play button
+            mExoPlayer.setPlayWhenReady(false);
+            if (mPlayerPosition != null) {
+                mExoPlayer.seekTo(mPlayerPosition);
+            }
             //to make video fullscreen on phone flip
             boolean isTab = getArguments().getBoolean("isTab");
             if (getActivity().getResources().getConfiguration().orientation ==
@@ -240,6 +269,9 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             mExoPlayer.release();
             mExoPlayer = null;
         }
+        if(mMediaSession != null) {
+            mMediaSession.release();
+        }
     }
 
     @Override
@@ -250,16 +282,12 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     @Override
     public void onDestroy(){
         super.onDestroy();
-        //only called in onDestroy to allow audio playback when app isn't in the foreground
-        releasePlayer();
-        if(mMediaSession != null) {
-            mMediaSession.setActive(false);
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
     }
 
     @Override

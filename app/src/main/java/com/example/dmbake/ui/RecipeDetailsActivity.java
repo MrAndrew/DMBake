@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dmbake.R;
@@ -19,10 +20,15 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
 
     private RecipeParcelable recipe;
 
+    private static final String TAG = RecipeDetailsActivity.class.getSimpleName();
+
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
     public boolean mTwoPane;
     public int mStepIndex;
+    private Fragment mDetailsFragment;
+    private Fragment mStepFragment;
+    private Fragment mIngredientsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +48,14 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
             // Only create new fragments when there is no previously saved state
             if (savedInstanceState == null) {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
-                ft.replace(R.id.recipe_details_container2, fragment);
+                mDetailsFragment = RecipeDetailsFragment.newInstance(recipe);
+                ft.replace(R.id.recipe_details_container2, mDetailsFragment);
                 ft.commit();
                 //load ingredients by default in tab view
                 onListItemClick(false, 0);
+            } else {
+                //Restore the fragment's state here
+
             }
 
         } else {
@@ -54,9 +63,12 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
                 // Only create new fragments when there is no previously saved state
                 if (savedInstanceState == null) {
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
-                    ft.replace(R.id.recipe_details_container, fragment);
+                    mDetailsFragment = RecipeDetailsFragment.newInstance(recipe);
+                    ft.replace(R.id.recipe_details_container, mDetailsFragment);
                     ft.commit();
+                } else {
+                    //Restore the fragment's state here
+
                 }
         }
     }
@@ -68,6 +80,18 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         outState.putParcelable("RECIPE", recipe);
         outState.putBoolean("IS_TWO_PANE", mTwoPane);
         outState.putInt("STEP_INDEX", mStepIndex);
+        if (mTwoPane) {
+            //save both fragments displayed
+            getSupportFragmentManager().putFragment(outState, "RecipeDetailsFragment", mDetailsFragment);
+            if (mStepIndex != -1) {
+                getSupportFragmentManager().putFragment(outState, "RecipeStepViewFragment", mStepFragment);
+            } else {
+                getSupportFragmentManager().putFragment(outState, "RecipeIngredientsFragment", mIngredientsFragment);
+            }
+        } else {
+            //only save details fragment on phones
+            getSupportFragmentManager().putFragment(outState, "RecipeDetailsFragment", mDetailsFragment);
+        }
     }
 
     @Override
@@ -77,26 +101,25 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
         mTwoPane = savedInstanceState.getBoolean("IS_TWO_PANE");
         mStepIndex = savedInstanceState.getInt("STEP_INDEX");
         if(savedInstanceState != null && !mTwoPane) {
+//            Log.d(TAG, "restore instance state called on phone to restore details fragment");
+            mDetailsFragment = getSupportFragmentManager().getFragment(savedInstanceState, "RecipeDetailsFragment");
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
-            ft.replace(R.id.recipe_details_container, fragment);
+            ft.replace(R.id.recipe_details_container, mDetailsFragment);
             ft.commit();
-            //load last step or ingredients
-            if(mStepIndex != -1) {
-                onListItemClick( true, mStepIndex);
-            } else {
-                onListItemClick(false, mStepIndex);
-            }
         } else if(savedInstanceState != null && mTwoPane) {
+            mDetailsFragment = getSupportFragmentManager().getFragment(savedInstanceState, "RecipeDetailsFragment");
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = RecipeDetailsFragment.newInstance(recipe);
-            ft.replace(R.id.recipe_details_container2, fragment);
-            ft.commit();
+            ft.replace(R.id.recipe_details_container2, mDetailsFragment);
+//            ft.commit();
             //load last step or ingredients
-            if(mStepIndex != -1) {
-                onListItemClick( true, mStepIndex);
+            if (mStepIndex != -1) {
+                mStepFragment = getSupportFragmentManager().getFragment(savedInstanceState, "RecipeStepViewFragment");
+                ft.replace(R.id.recipe_step_container2, mStepFragment);
+                ft.commit();
             } else {
-                onListItemClick(false, mStepIndex);
+                mIngredientsFragment = getSupportFragmentManager().getFragment(savedInstanceState, "RecipeIngredientsFragment");
+                ft.replace(R.id.recipe_step_container2, mIngredientsFragment);
+                ft.commit();
             }
         }
     }
@@ -138,20 +161,20 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
             //if tab view is used, then calls the fragment directly
             if (isStep) {
                 mStepIndex = stepIndex;
-                Toast.makeText(this, "Step: " + stepIndex,
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Step: " + stepIndex,
+//                        Toast.LENGTH_SHORT).show();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 //position - 1 b/c ingredients takes up position 0 within the list
-                Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex, mTwoPane);
-                ft.replace(R.id.recipe_step_container2, fragment);
+                mStepFragment = StepViewFragment.newInstance(recipe, stepIndex, mTwoPane);
+                ft.replace(R.id.recipe_step_container2, mStepFragment);
                 ft.commit();
             } else {
                 mStepIndex = -1;
-                Toast.makeText(this, "Ingredients!",
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Ingredients!",
+//                        Toast.LENGTH_SHORT).show();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                Fragment fragment = IngredientsFragment.newInstance(recipe);
-                ft.replace(R.id.recipe_step_container2, fragment);
+                mIngredientsFragment = IngredientsFragment.newInstance(recipe);
+                ft.replace(R.id.recipe_step_container2, mIngredientsFragment);
                 ft.commit();
             }
         } else {

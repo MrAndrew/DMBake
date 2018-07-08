@@ -1,6 +1,7 @@
 package com.example.dmbake.ui;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class IngredientsFragment extends Fragment {
 
     RecyclerView ingredientsRv;
+    private Parcelable mRvListState;
 
     private static final String RECIPE_KEY = "recipe_key";
 
@@ -49,8 +51,27 @@ public class IngredientsFragment extends Fragment {
             //set adapter
             IngredientsListAdapter adapter = new IngredientsListAdapter(recipeIngredients);
             ingredientsRv.setAdapter(adapter);
+        } else {
+            ingredientsRv = returnView.findViewById(R.id.recipe_ingredients_rv);
+            //layout manager for ingredients RV
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(container.getContext());
+            ingredientsRv.setLayoutManager(layoutManager);
+            ingredientsRv.setHasFixedSize(true);
+            //set adapter
+            IngredientsListAdapter adapter = new IngredientsListAdapter(recipeIngredients);
+            ingredientsRv.setAdapter(adapter);
+            //should restore list state to one saved
+            mRvListState = savedInstanceState.getParcelable("ListState");
+            ingredientsRv.getLayoutManager().onRestoreInstanceState(mRvListState);
         }
         return returnView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //save RV's list state
+        outState.putParcelable("ListState", ingredientsRv.getLayoutManager().onSaveInstanceState());
     }
 
 }

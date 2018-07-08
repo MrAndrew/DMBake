@@ -124,8 +124,8 @@ public class RecipeListActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                Toast.makeText(RecipeListActivity.this, "" + recipeParcelables.get(position).getRecipeName(),
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(RecipeListActivity.this, "" + recipeParcelables.get(position).getRecipeName(),
+//                        Toast.LENGTH_SHORT).show();
                 //save recipe
                 saveRecipe(position);
                 //start recipe details intent

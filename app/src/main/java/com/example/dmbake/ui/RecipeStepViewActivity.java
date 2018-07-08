@@ -18,6 +18,8 @@ public class RecipeStepViewActivity extends AppCompatActivity {
     private RecipeParcelable recipe;
     private boolean isStep;
     private int stepIndex;
+    private Fragment mStepFragment;
+    private Fragment mIngredientsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +42,13 @@ public class RecipeStepViewActivity extends AppCompatActivity {
     private void loadFragment() {
         if (isStep) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = StepViewFragment.newInstance(recipe, stepIndex, false);
-            ft.replace(R.id.recipe_step_container, fragment);
+            mStepFragment = StepViewFragment.newInstance(recipe, stepIndex, false);
+            ft.replace(R.id.recipe_step_container, mStepFragment);
             ft.commit();
         } else if (!isStep) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = IngredientsFragment.newInstance(recipe);
-            ft.replace(R.id.recipe_step_container, fragment);
+            mIngredientsFragment = IngredientsFragment.newInstance(recipe);
+            ft.replace(R.id.recipe_step_container, mIngredientsFragment);
             ft.commit();
         }
     }
@@ -58,6 +60,11 @@ public class RecipeStepViewActivity extends AppCompatActivity {
         outState.putParcelable("RECIPE", recipe);
         outState.putBoolean("IS_STEP", isStep);
         outState.putInt("STEP_INDEX", stepIndex);
+        if (isStep) {
+            getSupportFragmentManager().putFragment(outState, "RecipeStepViewFragment", mStepFragment);
+        } else {
+            getSupportFragmentManager().putFragment(outState, "RecipeIngredientsFragment", mIngredientsFragment);
+        }
     }
 
     @Override
@@ -68,7 +75,17 @@ public class RecipeStepViewActivity extends AppCompatActivity {
         stepIndex = savedInstanceState.getInt("STEP_INDEX");
         if(savedInstanceState != null) {
             //reload fragments when app instance is restored
-            loadFragment();
+            if (isStep) {
+                mStepFragment = getSupportFragmentManager().getFragment(savedInstanceState, "RecipeStepViewFragment");
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.recipe_step_container, mStepFragment);
+                ft.commit();
+            } else if (!isStep) {
+                mIngredientsFragment = getSupportFragmentManager().getFragment(savedInstanceState, "RecipeIngredientsFragment");
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.recipe_step_container, mIngredientsFragment);
+                ft.commit();
+            }
         }
     }
 

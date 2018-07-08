@@ -2,6 +2,7 @@ package com.example.dmbake.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 public class RecipeDetailsFragment extends Fragment {
 
     RecyclerView recipeDetailsRv;
+    private Parcelable mRvListState;
 
     private static final String RECIPE_KEY = "recipe_key";
 
@@ -64,18 +66,40 @@ public class RecipeDetailsFragment extends Fragment {
 
         View returnView = inflater.inflate(R.layout.fragment_recipe_details_rv, container, false);
 
-        recipeDetailsRv = (RecyclerView) returnView.findViewById(R.id.recipe_details_rv);
+        if (savedInstanceState == null){
+            recipeDetailsRv = returnView.findViewById(R.id.recipe_details_rv);
+            //layout manager
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+            recipeDetailsRv.setLayoutManager(layoutManager);
+            recipeDetailsRv.setHasFixedSize(true);
+            //create and set rv adapter and listener
+            RecipeDetailsListAdapter adapter = new RecipeDetailsListAdapter(recipeIngredients,
+                    recipeSteps, mCallback);
+            recipeDetailsRv.setAdapter(adapter);
+        } else {
+            recipeDetailsRv = returnView.findViewById(R.id.recipe_details_rv);
+            //layout manager
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+            recipeDetailsRv.setLayoutManager(layoutManager);
+            recipeDetailsRv.setHasFixedSize(true);
+            //create and set rv adapter and listener
+            RecipeDetailsListAdapter adapter = new RecipeDetailsListAdapter(recipeIngredients,
+                    recipeSteps, mCallback);
+            recipeDetailsRv.setAdapter(adapter);
+            //should restore list state to one saved
+            mRvListState = savedInstanceState.getParcelable("ListState");
+            recipeDetailsRv.getLayoutManager().onRestoreInstanceState(mRvListState);
+        }
 
-        //layout manager
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recipeDetailsRv.setLayoutManager(layoutManager);
-        recipeDetailsRv.setHasFixedSize(true);
-        //create and set rv adapter and listener
-        RecipeDetailsListAdapter adapter = new RecipeDetailsListAdapter(recipeIngredients,
-                recipeSteps, mCallback);
-        recipeDetailsRv.setAdapter(adapter);
 
         return returnView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //save RV's list state
+        outState.putParcelable("ListState", recipeDetailsRv.getLayoutManager().onSaveInstanceState());
     }
 
 
