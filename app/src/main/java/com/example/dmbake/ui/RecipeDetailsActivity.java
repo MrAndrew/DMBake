@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.dmbake.R;
@@ -34,6 +36,8 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_details);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //get data from intent that started the activity
         recipe = Objects.requireNonNull(getIntent().getExtras()).getParcelable("recipe");
@@ -71,6 +75,17 @@ public class RecipeDetailsActivity extends AppCompatActivity implements RecipeDe
 
                 }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

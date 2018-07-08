@@ -3,8 +3,10 @@ package com.example.dmbake.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 
 import com.example.dmbake.R;
 import com.example.dmbake.models.RecipeParcelable;
@@ -26,6 +28,8 @@ public class RecipeStepViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_step);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Only create new fragments when there is no previously saved state
         if (savedInstanceState == null) {
             //get data from intent that started the activity
@@ -37,6 +41,17 @@ public class RecipeStepViewActivity extends AppCompatActivity {
             //load correct fragment view
             loadFragment();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadFragment() {
