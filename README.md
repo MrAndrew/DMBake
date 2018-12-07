@@ -18,9 +18,10 @@ Note: Android Studio may ask you to update certain dependencies. This is not rec
 * [ButterKnife](https://github.com/JakeWharton/butterknife) - Library for easy binding of Android Views using an anotation processor
 * [Gson](https://github.com/google/gson) - A Java library that converts Java Objects into JSON.
 
-### Author
+### Authors
 
-* __Mr. Andrew__
+:* __Udacity__ - _Initial mockup and guidelines_ - [Udacity](https://udacity.com)
+* __Mr. Andrew__ - _Main source of code and implementation following provided guidelines_ [Mr.Andrew](http://github.com/Mrandrew7of9)
 
 ### License
 
