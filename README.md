@@ -20,7 +20,7 @@ Note: Android Studio may ask you to update certain dependencies. This is not rec
 
 ### Authors
 
-:* __Udacity__ - _Initial mockup and guidelines_ - [Udacity](https://udacity.com)
+* __Udacity__ - _Initial mockup and guidelines_ - [Udacity](https://udacity.com)
 * __Mr. Andrew__ - _Main source of code and implementation following provided guidelines_ [Mr.Andrew](http://github.com/Mrandrew7of9)
 
 ### License
